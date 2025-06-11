@@ -1,5 +1,6 @@
 package ecommerce.api.controller;
 
+import ecommerce.api.domain.Product;
 import ecommerce.api.service.ProductService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,8 +15,8 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/api/product")
-    public List<String> all() {
+    @GetMapping("/api/products")
+    public List<Product> all() {
         return this.productService.all();
     }
 }
