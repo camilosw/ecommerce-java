@@ -13,4 +13,8 @@ public class ProductService {
                 new Product("1", "Product 1", "xyz", new BigDecimal("10.5"), 8)
         );
     }
+
+    public Product findById(String id) {
+        return new Product("1", "Product 1", "xyz", new BigDecimal("10.5"), 8);
+    }
 }
