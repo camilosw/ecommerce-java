@@ -1,26 +1,34 @@
 package ecommerce.api.service;
 
 import ecommerce.api.domain.Product;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ProductService {
+    private List<Product> products = new ArrayList<>(
+        List.of(
+            new Product("1", "Product 1", "xyz", new BigDecimal("10.5"), 8)
+        )
+    );
+
     public List<Product> all() {
-        return List.of(
-                new Product("1", "Product 1", "xyz", new BigDecimal("10.5"), 8)
-        );
+        return products;
     }
 
-    public Product findById(String id) {
-        return new Product("1", "Product 1", "xyz", new BigDecimal("10.5"), 8);
+    public Optional<Product> findById(@NonNull String id) {
+        return products
+            .stream()
+            .filter(p -> Objects.equals(p.getId(), id))
+            .findFirst();
     }
 
-    public void addProduct(Product product) {
+    public void addProduct(@NonNull Product product) {
         product.setId(UUID.randomUUID().toString());
+        products.add(product);
         System.out.println("New product " + product);
     }
 }
