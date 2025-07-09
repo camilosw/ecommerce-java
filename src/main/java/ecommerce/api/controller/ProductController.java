@@ -2,13 +2,12 @@ package ecommerce.api.controller;
 
 import ecommerce.api.domain.Product;
 import ecommerce.api.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 public class ProductController {
@@ -29,7 +28,8 @@ public class ProductController {
     }
 
     @PostMapping("/api/products")
-    public void addProduct(@RequestBody Product product) {
-        this.productService.addProduct(product);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product addProduct(@Valid @RequestBody Product product) {
+        return this.productService.addProduct(product);
     }
 }
