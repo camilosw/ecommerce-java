@@ -1,6 +1,8 @@
 package ecommerce.api.controller;
 
 import ecommerce.api.domain.Product;
+import ecommerce.api.domain.ProductCreateDTO;
+import ecommerce.api.domain.ProductUpdateDTO;
 import ecommerce.api.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -29,7 +31,17 @@ public class ProductController {
 
     @PostMapping("/api/products")
     @ResponseStatus(HttpStatus.CREATED)
-    public Product addProduct(@Valid @RequestBody Product product) {
+    public Product addProduct(@Valid @RequestBody ProductCreateDTO product) {
         return this.productService.addProduct(product);
+    }
+
+    @PatchMapping("/api/products/{id}")
+    public Product updateProduct(@PathVariable String id, @Valid @RequestBody ProductUpdateDTO product) {
+        return this.productService.updateProduct(id, product);
+    }
+
+    @DeleteMapping("/api/products/{id}")
+    public void deleteProduct(@PathVariable String id) {
+        this.productService.deleteProduct(id);
     }
 }

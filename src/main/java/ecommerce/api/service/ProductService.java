@@ -1,6 +1,9 @@
 package ecommerce.api.service;
 
 import ecommerce.api.domain.Product;
+import ecommerce.api.domain.ProductCreateDTO;
+import ecommerce.api.domain.ProductDTO;
+import ecommerce.api.domain.ProductUpdateDTO;
 import ecommerce.api.exception.ValidationException;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
@@ -28,15 +31,54 @@ public class ProductService {
             .findFirst();
     }
 
-    public Product addProduct(@NonNull Product product) {
-        validateProduct(product);
-        product.setId(UUID.randomUUID().toString());
+    public Product addProduct(@NonNull ProductCreateDTO productCreateDTO) {
+        validateProduct(productCreateDTO);
+        Product product = Product
+            .builder()
+            .id(UUID.randomUUID().toString())
+            .name(productCreateDTO.getName())
+            .sku(productCreateDTO.getSku())
+            .price(productCreateDTO.getPrice())
+            .stockQuantity(productCreateDTO.getStockQuantity())
+            .build();
+
         products.add(product);
-        System.out.println("New product 4" + product);
+        System.out.println("New product " + product);
         return product;
     }
 
-    private void validateProduct(@NonNull Product product) {
+    public Product updateProduct(@NonNull String id, @NonNull ProductUpdateDTO productUpdateDTO) {
+        validateProduct(productUpdateDTO);
+        Optional<Product> currentProductOptional = products
+            .stream()
+            .filter(p -> Objects.equals(p.getId(), id))
+            .findFirst();
+
+        currentProductOptional.orElseThrow(() -> new NoSuchElementException("Product not found with id: " + id));
+
+        Product currentProduct = currentProductOptional.get();
+        if (productUpdateDTO.getName() != null) {
+            currentProduct.setName(productUpdateDTO.getName());
+        }
+        if (productUpdateDTO.getSku() != null) {
+            currentProduct.setSku(productUpdateDTO.getSku());
+        }
+        if (productUpdateDTO.getPrice() != null) {
+            currentProduct.setPrice(productUpdateDTO.getPrice());
+        }
+        if (productUpdateDTO.getStockQuantity() != null) {
+            currentProduct.setStockQuantity(productUpdateDTO.getStockQuantity());
+        }
+
+        products.replaceAll(p -> p.getId().equals(currentProduct.getId()) ? currentProduct : p);
+        return currentProduct;
+    }
+
+    public void deleteProduct(@NonNull String id) {
+        products.removeIf(p -> Objects.equals(p.getId(), id));
+    }
+
+    private void validateProduct(@NonNull ProductDTO product) {
         List<FieldError> errors = new ArrayList<>();
 
         boolean isSkuDuplicated = products
