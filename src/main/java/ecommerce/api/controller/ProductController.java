@@ -25,23 +25,23 @@ public class ProductController {
     }
 
     @GetMapping("/api/products/{id}")
-    public Product findById(@PathVariable String id) {
+    public Product findById(@PathVariable int id) {
         return this.productService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping("/api/products")
     @ResponseStatus(HttpStatus.CREATED)
     public Product addProduct(@Valid @RequestBody ProductCreateDTO product) {
-        return this.productService.addProduct(product);
+        return this.productService.add(product);
     }
 
     @PatchMapping("/api/products/{id}")
-    public Product updateProduct(@PathVariable String id, @Valid @RequestBody ProductUpdateDTO product) {
+    public Product updateProduct(@PathVariable int id, @Valid @RequestBody ProductUpdateDTO product) {
         return this.productService.updateProduct(id, product);
     }
 
     @DeleteMapping("/api/products/{id}")
-    public void deleteProduct(@PathVariable String id) {
+    public void deleteProduct(@PathVariable int id) {
         this.productService.deleteProduct(id);
     }
 }
