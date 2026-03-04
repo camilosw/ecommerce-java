@@ -20,5 +20,5 @@ E-commerce systems are universally understood, involve multiple interrelated ent
 | [Phase 2](PHASE_2.md) | Data Persistence & Database Integration | 2-3 weeks |
 | [Phase 3](PHASE_3.md) | Advanced Spring Features & API Refinement | 2-3 weeks |
 | [Phase 4](PHASE_4.md) | Security & Authentication | 2-3 weeks |
-| [Phase 5](PHASE_5.md) | Testing Strategies & Quality Assurance | 2-3 weeks |
+| [Phase 5](PHASE_5.md) | Advanced Testing & Quality Engineering | 2-3 weeks |
 | [Phase 6](PHASE_6.md) | Advanced Topics & Scalability | 3-4 weeks |

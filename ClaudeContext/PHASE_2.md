@@ -1,4 +1,4 @@
-# Phase 2: Data Persistence & Database Integration
+    # Phase 2: Data Persistence & Database Integration
 
 **Duration:** 2-3 weeks
 
@@ -53,9 +53,25 @@
 * Custom repository queries function properly
 * Sample data loads on application startup
 
+## Testing Fundamentals (Introduced This Phase)
+
+This phase introduces your first automated tests. Testing starts here — not at the end — because tests give you fast feedback that your JPA mappings and queries are actually correct, without needing to start the full server.
+
+**What you'll learn:**
+
+* JUnit 5 basics: `@Test`, `@BeforeEach`, `@AfterEach`, assertions (`assertEquals`, `assertThrows`, `assertThat`)
+* Test naming conventions: method names should describe the scenario (e.g., `findByCategory_returnsMatchingProducts`)
+* Repository testing with `@DataJpaTest`: spins up only the JPA layer (no web, no full context), uses an in-memory H2 database
+* Writing your first tests: verify that entities persist correctly, custom queries return expected results, and constraints (e.g., unique names) are enforced
+
+**Acceptance Criteria — Testing:**
+
+* At least one `@DataJpaTest` class exists for `ProductRepository` and `CategoryRepository`
+* Tests cover: save and find by ID, custom query methods, and relationship loading
+* All tests pass with `./mvnw test`
+
 ## Advanced Features
 
 * Implement soft deletion for products
 * Add audit fields (created_date, modified_date)
 * Create database indexes for performance optimization
-* Implement repository testing with @DataJpaTest

@@ -42,6 +42,24 @@
 * API documentation is automatically generated and accessible
 * Different environment profiles work correctly
 
+## Unit Testing with Mocks (Introduced This Phase)
+
+Phase 2 tested the database layer in isolation. This phase introduces testing the **service and controller layers** in isolation — without a database or a running server. The key tool is Mockito.
+
+**What you'll learn:**
+
+* Mockito basics: `@Mock`, `@InjectMocks`, `when(...).thenReturn(...)`, `verify(...)`
+* Why mocking exists: test one layer at a time by replacing real dependencies with controlled fakes
+* Service layer unit tests with `@ExtendWith(MockitoExtension.class)`: mock the repository, test the business logic
+* Controller tests with `@WebMvcTest`: starts only the web layer, mock the service, test request/response behavior (status codes, JSON structure, validation rejection)
+* Testing exception paths: verify that your `@ControllerAdvice` returns the right error response when exceptions are thrown
+
+**Acceptance Criteria — Testing:**
+
+* `ProductServiceTest` exists and covers: create, update, delete, find, and error cases (e.g., product not found)
+* `ProductControllerTest` exists using `@WebMvcTest` and covers all endpoints including validation rejection (400) and not-found (404) cases
+* Mockito is used — no real database or server involved in these tests
+
 ## Extension Challenges
 
 * Implement API versioning strategies
