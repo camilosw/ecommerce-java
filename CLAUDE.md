@@ -35,6 +35,14 @@ Activated by: user says "solve mode"
 
 See [COMPLETION_SUMMARY.md](ClaudeContext/COMPLETION_SUMMARY.md) for full details of what was built in each phase.
 
+**IMPORTANT:** Update `ClaudeContext/COMPLETION_SUMMARY.md` **immediately** after any of the following occur — do not wait until the end of the conversation:
+- A checklist item is marked as completed
+- A new concept or pattern is learned/applied
+- A significant architectural decision is made
+- A phase is completed
+
+This ensures progress is persisted even if the session is interrupted abruptly.
+
 ## Phase 2: Data Persistence & Database Integration
 
 **Status**: IN PROGRESS — See [PHASE_2.md](ClaudeContext/PHASE_2.md) for full requirements and acceptance criteria.

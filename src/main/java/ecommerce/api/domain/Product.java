@@ -1,5 +1,6 @@
 package ecommerce.api.domain;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,12 +12,15 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Product {
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     private String name;
@@ -31,4 +35,7 @@ public class Product {
     @NotNull
     @PositiveOrZero
     private Integer stockQuantity;
+
+    @ManyToOne
+    private Category category;
 }

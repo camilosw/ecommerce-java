@@ -21,7 +21,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Optional<Product> findById(int id) {
+    public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
 
@@ -34,15 +34,20 @@ public class ProductService {
             .stockQuantity(productCreateDTO.getStockQuantity())
             .build();
 
-        Integer generatedId = productRepository.add(product);
-        product.setId(generatedId);
+        Product savedProduct = productRepository.save(product);
+        product.setId(savedProduct.getId());
         
         System.out.println("New product " + product);
         return product;
     }
 
-    public Product updateProduct(int id, @NonNull ProductUpdateDTO productUpdateDTO) {
-        Product product = new Product();
+    public Optional<Product> updateProduct(Long id, @NonNull ProductUpdateDTO productUpdateDTO) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (optionalProduct.isEmpty()) {
+            return optionalProduct;
+        }
+        Product product = optionalProduct.get();
+
         if (productUpdateDTO.getName() != null) {
             product.setName(productUpdateDTO.getName());
         }
@@ -56,14 +61,11 @@ public class ProductService {
             product.setStockQuantity(productUpdateDTO.getStockQuantity());
         }
 
-        boolean updated = productRepository.update(id, product);
-        if (!updated) {
-            throw new NoSuchElementException("Product not found with id: " + id);
-        }
-        return product;
+        Product savedProduct = productRepository.save(product);
+        return Optional.of(savedProduct);
     }
 
-    public void deleteProduct(int id) {
-        productRepository.delete(id);
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
 }

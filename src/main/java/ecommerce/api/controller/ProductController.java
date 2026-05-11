@@ -25,7 +25,7 @@ public class ProductController {
     }
 
     @GetMapping("/api/products/{id}")
-    public Product findById(@PathVariable int id) {
+    public Product findById(@PathVariable Long id) {
         return this.productService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
@@ -36,12 +36,12 @@ public class ProductController {
     }
 
     @PatchMapping("/api/products/{id}")
-    public Product updateProduct(@PathVariable int id, @Valid @RequestBody ProductUpdateDTO product) {
-        return this.productService.updateProduct(id, product);
+    public Product updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateDTO product) {
+        return this.productService.updateProduct(id, product).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/api/products/{id}")
-    public void deleteProduct(@PathVariable int id) {
+    public void deleteProduct(@PathVariable Long id) {
         this.productService.deleteProduct(id);
     }
 }

@@ -69,38 +69,58 @@ Product {
 
 ### What Was Built So Far
 
-Products are now persisted to a real database using Spring JDBC (JdbcTemplate), replacing the in-memory ArrayList from Phase 1.
+Migrated from Spring JDBC (JdbcTemplate) to Spring Data JPA. Both `Product` and `Category` entities are fully mapped with JPA annotations and relationships.
 
-**Approach chosen:** Spring JDBC (`JdbcTemplate`) — *Note: Phase 2 calls for Spring Data JPA; this is a lower-level alternative that achieves persistence but skips JPA/ORM entirely. This may need revisiting.*
-
-**New files:**
+**Package structure additions:**
 ```
 ecommerce.api/
-└── repository/ProductRepository.java   ← new; JdbcTemplate-based CRUD
-resources/
-└── schema.sql                          ← auto-runs on startup, creates product table
+├── domain/
+│   ├── Product.java         ← @Entity, @ManyToOne Category
+│   └── Category.java        ← @Entity, self-referencing @ManyToOne/@OneToMany
+└── repository/
+    ├── ProductRepository.java   ← interface extends JpaRepository<Product, Long>
+    └── CategoryRepository.java  ← interface extends JpaRepository<Category, Long>
+src/test/
+└── repository/
+    ├── ProductRepositoryTest.java  ← @DataJpaTest, 3 tests
+    └── CategoryRepositoryTest.java ← @DataJpaTest, 2 tests
 ```
 
-**Schema (`schema.sql`):**
-```sql
-CREATE TABLE IF NOT EXISTS product (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name varchar(50) NOT NULL,
-    sku varchar(50) NOT NULL UNIQUE,
-    price DECIMAL(10,2) NOT NULL,
-    stockQuantity INT NOT NULL
-);
+**Product model (current):**
+```java
+Product {
+    Long id;               // @GeneratedValue IDENTITY
+    String name;
+    String sku;
+    BigDecimal price;
+    Integer stockQuantity;
+    Category category;     // @ManyToOne
+}
 ```
 
-**Product model changes:**
-- ID changed from `String` (UUID) → `int` (auto-increment, DB-generated)
-- JPA/entity annotations: not yet added (plain POJO)
+**Category model:**
+```java
+Category {
+    Long id;               // @GeneratedValue IDENTITY
+    String name;
+    String description;
+    Category parent;       // @ManyToOne (self-reference)
+    List<Category> children; // @OneToMany(mappedBy="parent"), excluded from toString/equals
+}
+```
 
-**Repository pattern:**
-- `ProductRepository` handles all SQL via `JdbcTemplate`
-- Uses `RowMapper` to map ResultSet → Product
-- Uses `GeneratedKeyHolder` to retrieve the auto-generated ID after INSERT
-- `ProductService` now delegates to `ProductRepository` (no more in-memory list)
+**Key concepts applied:**
+- `jakarta.persistence` annotations: `@Entity`, `@Id`, `@GeneratedValue`, `@ManyToOne`, `@OneToMany`
+- `mappedBy` to declare inverse side of bidirectional relationship
+- `@ToString.Exclude` + `@EqualsAndHashCode.Exclude` to prevent infinite recursion with Lombok `@Data`
+- Wrapper types (`Long`) for JPA IDs over primitives
+- `JpaRepository<Entity, ID>` — Spring generates all CRUD implementations
+- `save()` handles both INSERT and UPDATE
+- `deleteById()` replaces manual SQL delete
+- `updateProduct()` in service returns `Optional<Product>` — controller handles 404 via `orElseThrow()`
+- `@DataJpaTest`: loads only JPA layer, uses in-memory H2, no web/service layer
+- Test naming: `methodUnderTest_scenario_expectedOutcome`
+- AssertJ: `assertThat(optional).contains(value)`, `.isEmpty()`, `.orElseThrow()`
 
 ---
 
@@ -108,32 +128,31 @@ CREATE TABLE IF NOT EXISTS product (
 
 | Requirement | Status |
 |---|---|
-| Products stored in database | ✅ Done (H2 via JdbcTemplate) |
-| Database schema created automatically | ✅ Done (`schema.sql`) |
+| Products stored in database | ✅ Done (H2 via JPA) |
+| Database schema created automatically | ✅ Done (JPA DDL auto) |
 | Repository pattern implemented | ✅ Done |
-| Spring Data JPA / `@Entity` annotations | ❌ Not done (using raw JDBC instead) |
-| Category entity (id, name, description) | ❌ Not done |
-| Hierarchical categories (parent-child) | ❌ Not done |
-| Product belongs to one Category (FK) | ❌ Not done |
+| Spring Data JPA / `@Entity` annotations | ✅ Done |
+| Category entity (id, name, description) | ✅ Done |
+| Hierarchical categories (parent-child) | ✅ Done |
+| Product belongs to one Category (FK) | ✅ Done |
+| Repository tests with `@DataJpaTest` | ✅ Done (7 tests, all passing) |
 | Category deletion safety (reassign/prevent) | ❌ Not done |
-| H2 for dev / PostgreSQL for prod config | ❌ Not done (H2 implicit, no profiles) |
-| Sample data on startup (5 products, 3 categories) | ❌ Not done |
+| H2 for dev / PostgreSQL for prod config | ❌ Not done |
+| Sample data on startup (5 products, 3 categories) | ✅ Done (`DataInitializer` via `CommandLineRunner`) |
 | `@Transactional` on service/repository operations | ❌ Not done |
-| Custom query: find products by category | ❌ Not done |
-| Custom query: find categories by name pattern | ❌ Not done |
+| Custom query: find products by category | ✅ Done (`findByCategoryId`) |
+| Custom query: find categories by name pattern | ✅ Done (`findByNameContaining`) |
 | Indexes for performance | ❌ Not done |
 | Soft deletion for products | ❌ Not done |
 | Audit fields (created_date, modified_date) | ❌ Not done |
-| Repository tests with `@DataJpaTest` | ❌ Not done |
 
 ---
 
 ### Key Concepts Still Remaining
 
-- Spring Data JPA: `@Entity`, `@Table`, `@Id`, `@GeneratedValue`, `@ManyToOne`, `@OneToMany`
-- `JpaRepository` interface (replaces manual SQL)
+- JPQL / derived query methods for custom repository queries
 - `@Transactional` annotation and transaction boundaries
 - Spring profiles for H2 vs PostgreSQL (`application-dev.properties`, `application-prod.properties`)
 - `CommandLineRunner` or `data.sql` for sample data seeding
-- JPQL / derived query methods for custom repository queries
-- `@DataJpaTest` for slice testing
+- Column constraints (`@Column(length=50)`)
+- Indexes (`@Index` on `@Table`)
