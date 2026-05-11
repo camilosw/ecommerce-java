@@ -6,10 +6,12 @@ import ecommerce.api.domain.ProductUpdateDTO;
 import ecommerce.api.repository.ProductRepository;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
+@Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
 
@@ -25,6 +27,7 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
+    @Transactional
     public Product add(@NonNull ProductCreateDTO productCreateDTO) {
         Product product = Product
             .builder()
@@ -41,6 +44,7 @@ public class ProductService {
         return product;
     }
 
+    @Transactional
     public Optional<Product> updateProduct(Long id, @NonNull ProductUpdateDTO productUpdateDTO) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isEmpty()) {
@@ -65,6 +69,7 @@ public class ProductService {
         return Optional.of(savedProduct);
     }
 
+    @Transactional
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }

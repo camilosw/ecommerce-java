@@ -139,7 +139,7 @@ Category {
 | Category deletion safety (reassign/prevent) | ❌ Not done |
 | H2 for dev / PostgreSQL for prod config | ❌ Not done |
 | Sample data on startup (5 products, 3 categories) | ✅ Done (`DataInitializer` via `CommandLineRunner`) |
-| `@Transactional` on service/repository operations | ❌ Not done |
+| `@Transactional` on service/repository operations | ✅ Done (`ProductService` — class-level `readOnly=true`, method-level overrides on writes) |
 | Custom query: find products by category | ✅ Done (`findByCategoryId`) |
 | Custom query: find categories by name pattern | ✅ Done (`findByNameContaining`) |
 | Indexes for performance | ❌ Not done |
@@ -148,11 +148,21 @@ Category {
 
 ---
 
+### Key Concepts Applied This Session
+
+- **ACID atomicity**: a transaction executes completely or rolls back entirely
+- **Persistence context / Session**: JPA's in-memory tracking layer, tied to an active transaction
+- **`LazyInitializationException`**: accessing a lazy-loaded relationship after the Session closes throws at runtime
+- **`@Transactional(readOnly = true)`**: skips dirty checking and allows DB optimizations; use on read-only methods
+- **Class-level + method-level `@Transactional` pattern**: class default is `readOnly=true`, write methods override with `@Transactional`
+- **Dirty checking**: JPA auto-flushes changes to managed entities at commit — explicit `save()` not always needed, but preferred when returning the entity (ensures audit fields like `modified_date` are reflected in the returned object)
+- **Spring vs Jakarta `@Transactional`**: always use `org.springframework.transaction.annotation.Transactional` in Spring Boot — supports `readOnly` and other Spring-specific options
+
 ### Key Concepts Still Remaining
 
-- JPQL / derived query methods for custom repository queries
-- `@Transactional` annotation and transaction boundaries
 - Spring profiles for H2 vs PostgreSQL (`application-dev.properties`, `application-prod.properties`)
-- `CommandLineRunner` or `data.sql` for sample data seeding
+- Category deletion safety (reassign products or block deletion)
 - Column constraints (`@Column(length=50)`)
 - Indexes (`@Index` on `@Table`)
+- Audit fields (`@CreatedDate`, `@LastModifiedDate`)
+- Soft deletion for products
