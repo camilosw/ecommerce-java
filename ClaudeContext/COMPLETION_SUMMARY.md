@@ -136,8 +136,8 @@ Category {
 | Hierarchical categories (parent-child) | ✅ Done |
 | Product belongs to one Category (FK) | ✅ Done |
 | Repository tests with `@DataJpaTest` | ✅ Done (7 tests, all passing) |
-| Category deletion safety (reassign/prevent) | ❌ Not done |
-| H2 for dev / PostgreSQL for prod config | ❌ Not done |
+| Category deletion safety (reassign/prevent) | ✅ Done (prevent deletion via `ConflictException` → 409) |
+| H2 for dev / PostgreSQL for prod config | ✅ Done (Spring profiles: `application-dev.properties`, `application-prod.properties`) |
 | Sample data on startup (5 products, 3 categories) | ✅ Done (`DataInitializer` via `CommandLineRunner`) |
 | `@Transactional` on service/repository operations | ✅ Done (`ProductService` — class-level `readOnly=true`, method-level overrides on writes) |
 | Custom query: find products by category | ✅ Done (`findByCategoryId`) |
@@ -157,11 +157,18 @@ Category {
 - **Class-level + method-level `@Transactional` pattern**: class default is `readOnly=true`, write methods override with `@Transactional`
 - **Dirty checking**: JPA auto-flushes changes to managed entities at commit — explicit `save()` not always needed, but preferred when returning the entity (ensures audit fields like `modified_date` are reflected in the returned object)
 - **Spring vs Jakarta `@Transactional`**: always use `org.springframework.transaction.annotation.Transactional` in Spring Boot — supports `readOnly` and other Spring-specific options
+- **Spring Profiles**: `application-{profile}.properties` files load per environment; `spring.profiles.active=dev` sets default; `SPRING_PROFILES_ACTIVE` env var overrides
+- **Environment variable injection**: `${DB_PASSWORD}` syntax in properties reads from env vars — never hardcode secrets in prod config
+- **`@Profile("dev")`**: conditionally registers a bean only when the specified profile is active (e.g., `DataInitializer` only in dev)
+- **`ddl-auto` strategy**: `create` for dev (recreate schema each start), `validate` for prod (fail-fast if schema mismatches entities)
+- **FK constraint violation**: DB enforces referential integrity — deleting a referenced row throws a constraint error, not a silent no-op
+- **`ConflictException` → 409 Conflict**: custom exception for business-rule conflicts (e.g., category has products); handled globally via `@RestControllerAdvice`
+- **`existsBy` queries**: more efficient than `countBy` when you only need a boolean check — stops at the first match
+- **`@RequestMapping` at class level**: extracts common URL prefix so endpoint methods use relative paths
+- **`@ResponseStatus(HttpStatus.NO_CONTENT)`**: returns 204 for DELETE — signals success with no body
 
 ### Key Concepts Still Remaining
 
-- Spring profiles for H2 vs PostgreSQL (`application-dev.properties`, `application-prod.properties`)
-- Category deletion safety (reassign products or block deletion)
 - Column constraints (`@Column(length=50)`)
 - Indexes (`@Index` on `@Table`)
 - Audit fields (`@CreatedDate`, `@LastModifiedDate`)
