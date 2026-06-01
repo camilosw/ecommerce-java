@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/products")
 public class ProductController {
     private final ProductService productService;
 
@@ -19,28 +20,29 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/api/products")
+    @GetMapping
     public List<Product> all() {
         return this.productService.all();
     }
 
-    @GetMapping("/api/products/{id}")
+    @GetMapping("/{id}")
     public Product findById(@PathVariable Long id) {
         return this.productService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/api/products")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Product addProduct(@Valid @RequestBody ProductCreateDTO product) {
         return this.productService.add(product);
     }
 
-    @PatchMapping("/api/products/{id}")
+    @PatchMapping("/{id}")
     public Product updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateDTO product) {
         return this.productService.updateProduct(id, product).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("/api/products/{id}")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id) {
         this.productService.deleteProduct(id);
     }
