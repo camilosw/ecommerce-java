@@ -5,12 +5,14 @@ import ecommerce.api.domain.Product;
 import ecommerce.api.repository.CategoryRepository;
 import ecommerce.api.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Component
+@Profile("dev")
 public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
